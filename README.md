@@ -32,4 +32,4 @@ Launch a range of simulations with
 ```
 python3 -m src.launcher.TV.sbm_sim <offset> <process_id_start>-<process_id_stop> <sim_id>
 ```
-In order to run several configs for one setting
+As an example: In order to run one sweep of all configs for setting 10 (there is a total of 6 configs) set the range to 0-5
