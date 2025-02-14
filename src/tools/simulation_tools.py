@@ -86,7 +86,7 @@ def args_to_pid_and_sim_id(args):
         split_pid = pid_arg.split('-')
         if len(split_pid) > 1:
             rel_pid_start = int(split_pid[0])
-            rel_pid_stop = int(split_pid[1])
+            rel_pid_stop = int(split_pid[1]) + 1
         else:
             rel_pid_start = int(pid_arg)
             rel_pid_stop = rel_pid_start + 1

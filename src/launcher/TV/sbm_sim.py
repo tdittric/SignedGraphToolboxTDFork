@@ -81,6 +81,12 @@ def get_graph_config_lists(sim_id, return_name=False):
         num_classes_list = [3, 5, 10]
         percentage_labeled_list = [0, 10 / 3, 10, 20]
         num_nodes_list = [900] * 3
+    elif sim_id == 10:
+        name = 'runtime comparision with high number of nodes'
+        num_classes_list = [3, 5, 10]
+        percentage_labeled_list = [10 / 3, 10]
+        num_nodes_list = [9000] * 3
+        eps_list = [0.3]
     else:
         raise ValueError('unknown sim_id')
     class_distribution_list = [[1] * nc for nc in num_classes_list]
@@ -115,7 +121,7 @@ def get_methods(graph_config, sim_id):
     methods = [
         {'name': 'sncBNC', 'method': SpectralLearning(num_classes=num_classes, objective='BNC_INDEF')},
     ]
-    if sim_id >= 4:
+    if sim_id >= 4 and sim_id != 10:
         methods.append({'name': 'sncSponge', 'method': SpectralLearning(num_classes=num_classes, objective='SPONGE')})
     if sim_id in [0, 1]:
         for e in range(0, 45, 5):
@@ -303,6 +309,21 @@ def get_methods(graph_config, sim_id):
                         'l_guess': l_guess, 'is_unsupervised': False,
                         'method': TvStandardADMM(num_classes=num_classes, verbosity=v, penalty_parameter=b,
                                                  pre_iteration_version=pre, t_max_no_change=None)})
+        
+    if sim_id == 10:
+        for num_eig in [10, 100]:
+            methods.append({'name': 'diffuseInterface_am{n:0>3d}'.format(n=num_eig),
+                            'method': DiffuseInterface(num_classes=num_classes, verbosity=v, objective='am',
+                                                        num_eig=num_eig)})
+        b = 1e4
+        pre = 0
+        l_guess = 'sncBNC'
+        methods.append({'name': 'tv_nc_beta{penalty:0>+1.1f}_pre{pre}_{guess}'.format(penalty=np.log10(b), pre=int(pre),
+                                                                                      guess=l_guess),
+                        'l_guess': l_guess, 'is_unsupervised': False,
+                        'method': TvStandardADMM(num_classes=num_classes, verbosity=v, penalty_parameter=b,
+                                                 pre_iteration_version=pre, t_max_no_change=None)})
+
 
     if sim_id > len(constants.results_dir['sbm_sim']):
         raise ValueError('unknown sim_id')
@@ -377,4 +398,5 @@ if __name__ == '__main__':
     else:
         pid_range, sim_id = args_to_pid_and_sim_id(sys.argv)
         for pid in pid_range:
+            print('running pid {pid} / {m_pid}'.format(pid=pid, m_pid=pid_range[-1]))
             run(pid, sim_id)
